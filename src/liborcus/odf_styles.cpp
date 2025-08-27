@@ -1,0 +1,143 @@
+/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+#include "odf_styles.hpp"
+
+#include <stdexcept>
+
+namespace orcus {
+
+odf_style::odf_style() : family(style_family_unknown) {}
+odf_style::odf_style(std::string_view _name, std::string_view _display_name, odf_style_family _family, std::string_view parent) :
+    name(_name),
+    display_name(_display_name),
+    family(_family),
+    parent_name(parent)
+{
+    switch (family)
+    {
+        case style_family_table_column:
+            data = column{};
+            break;
+        case style_family_table_row:
+            data = row{};
+            break;
+        case style_family_table_cell:
+            data = cell{};
+            break;
+        case style_family_table:
+            data = table{};
+            break;
+        case style_family_graphic:
+            data = graphic{};
+            break;
+        case style_family_paragraph:
+            data = paragraph{};
+            break;
+        case style_family_text:
+            data = text{};
+            break;
+        case style_family_unknown:
+            throw std::invalid_argument("unkown style family is not allowed");
+    }
+}
+
+odf_style::~odf_style() {}
+
+odf_number_format::odf_number_format(std::string_view _name, bool _is_volatile):
+    name(_name),
+    is_volatile(_is_volatile)
+{
+}
+
+bool odf_style_key::operator<(const odf_style_key other) const
+{
+    if (family != other.family)
+        return family < other.family;
+
+    return name < other.name;
+}
+
+void merge(odf_styles_map_type& dst, odf_styles_map_type& src)
+{
+    for (auto& [name, style] : src)
+        dst.insert_or_assign(name, std::move(style));
+
+    src.clear();
+}
+
+void dump_state(const odf_styles_map_type& styles_map, std::ostream& os)
+{
+    os << "styles picked up:\n";
+
+    auto it = styles_map.begin(), it_end = styles_map.end();
+    for (; it != it_end; ++it)
+    {
+        os << "  style: " << it->first << " [ ";
+
+        switch (it->second->family)
+        {
+            case style_family_table_column:
+            {
+                const auto& data = std::get<odf_style::column>(it->second->data);
+                os << "column width: " << data.width.to_string();
+                break;
+            }
+            case style_family_table_row:
+            {
+                const auto& data = std::get<odf_style::row>(it->second->data);
+                os << "row height: " << data.height.to_string();
+                break;
+            }
+            case style_family_table_cell:
+            {
+                const auto& cell = std::get<odf_style::cell>(it->second->data);
+                os << "xf ID: " << cell.xf;
+                break;
+            }
+            case style_family_text:
+            {
+                const auto& data = std::get<odf_style::text>(it->second->data);
+                os << "font ID: " << data.font;
+                break;
+            }
+            default:
+                ;
+        }
+
+        os << " ]\n";
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, odf_style_family family)
+{
+    // NB: ensure the ordering of the names and the enum members are in sync
+    static constexpr std::string_view names[] = {
+        "unknown",      // style_family_unknown
+        "table-column", // style_family_table_column
+        "table-row",    // style_family_table_row
+        "table-cell",   // style_family_table_cell
+        "table",        // style_family_table
+        "graphic",      // style_family_graphic
+        "paragraph",    // style_family_paragraph
+        "text",         // style_family_text
+    };
+
+    auto pos = static_cast<int>(family);
+    os << names[pos];
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, odf_style_key key)
+{
+    os << key.family << ':' << key.name;
+    return os;
+}
+
+} // namespace orcus
+
+/* vim:set shiftwidth=4 softtabstop=4 expandtab: */

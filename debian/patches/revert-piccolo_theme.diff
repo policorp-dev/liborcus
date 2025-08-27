@@ -1,0 +1,23 @@
+revert switch to piccolo_theme since that epparently does not (yet) exist in Debian
+
+diff --git a/doc/conf.py b/doc/conf.py
+index 926bee8..d96e5c6 100644
+--- a/doc/conf.py
++++ b/doc/conf.py
+@@ -105,7 +105,7 @@ pygments_style = 'sphinx'
+ 
+ # The theme to use for HTML and HTML Help pages.  See the documentation for
+ # a list of builtin themes.
+-html_theme = 'piccolo_theme'
++html_theme = 'sphinx_rtd_theme'
+ 
+ # Theme options are theme-specific and customize the look and feel of a theme
+ # further.  For a list of options available for each theme, see the
+diff --git a/doc/requirements.txt b/doc/requirements.txt
+index 97f956f..1a0deee 100644
+--- a/doc/requirements.txt
++++ b/doc/requirements.txt
+@@ -1,3 +1,2 @@
+ breathe
+ sphinx-argparse
+-piccolo-theme

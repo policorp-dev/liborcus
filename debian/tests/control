@@ -1,0 +1,13 @@
+Test-Command: set -e ; cd "$AUTOPKGTEST_TMP" ; python3 -c "import orcus; print(orcus)"
+Depends:
+ python3,
+ python3-orcus
+Restrictions: superficial
+
+Tests: unit
+Depends:
+ liborcus-0.20-0,
+ liborcus-spreadsheet-model-0.20-0,
+ python3-orcus,
+ @builddeps@,
+Restrictions: build-needed, rw-build-tree, allow-stderr

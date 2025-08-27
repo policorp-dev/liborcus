@@ -1,0 +1,48 @@
+diff --git a/include/orcus/json_document_tree.hpp b/include/orcus/json_document_tree.hpp
+index e558c38..9942ed8 100644
+--- a/include/orcus/json_document_tree.hpp
++++ b/include/orcus/json_document_tree.hpp
+@@ -14,6 +14,7 @@
+ #include <string>
+ #include <memory>
+ #include <vector>
++#include <cstdint>
+ 
+ namespace orcus {
+ 
+diff --git a/include/orcus/sax_parser.hpp b/include/orcus/sax_parser.hpp
+index f7283d2..5f42e2f 100644
+--- a/include/orcus/sax_parser.hpp
++++ b/include/orcus/sax_parser.hpp
+@@ -11,6 +11,7 @@
+ #include "sax_parser_base.hpp"
+ 
+ #include <string_view>
++#include <cstdint>
+ 
+ namespace orcus {
+ 
+diff --git a/include/orcus/yaml_document_tree.hpp b/include/orcus/yaml_document_tree.hpp
+index d22a588..886881f 100644
+--- a/include/orcus/yaml_document_tree.hpp
++++ b/include/orcus/yaml_document_tree.hpp
+@@ -14,6 +14,7 @@
+ #include <string>
+ #include <memory>
+ #include <vector>
++#include <cstdint>
+ 
+ namespace orcus {
+ 
+diff --git a/include/orcus/zip_archive.hpp b/include/orcus/zip_archive.hpp
+index afc6727..aac5e4b 100644
+--- a/include/orcus/zip_archive.hpp
++++ b/include/orcus/zip_archive.hpp
+@@ -15,6 +15,7 @@
+ #include <vector>
+ #include <memory>
+ #include <ostream>
++#include <cstdint>
+ 
+ namespace orcus {
+ 

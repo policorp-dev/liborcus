@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# see https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/430#note_520138
+if [ ! -f ./src/parser/parser_test_base-parser_base_test.o ]; then
+	export DEB_BUILD_OPTIONS="`echo $DEB_BUILD_OPTIONS | sed -e s/nocheck//`"
+	debian/rules override_dh_auto_test
+fi
+
+# remove locally built liborcus so that we actually test the system one
+versions="$(dpkg --no-pager -l 'liborcus-*'|awk '/^ii/ {} /liborcus-[0-9]/ {print $2}'|cut -d: -f1|cut -d- -f2)"
+for v in $versions; do
+    echo deleting the following files:
+    find . -name "*${v}.so*"
+    find . -name "*${v}.so*" -delete
+done
+if [ -d ./src/python/.libs ]; then
+    rm -rfv ./src/python/.libs
+fi
+
+make check

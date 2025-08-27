@@ -1,0 +1,814 @@
+orcus 0.20.2
+
+* The base JSON parser class (orcus::json_parser) now allows primitive string,
+  numeric and boolean values to be document root as it should per JSON
+  specification.
+
+* added to the command-line programs proper support for Unicode filepath
+  handling on Windows which still uses UTF-16 with code pages.  Relevant
+  public API has been updated to add support for Unicode filepaths on Windows.
+
+* added to the import_sheet interface a variant of set_string() that takes a
+  non-indexed string value.  This is used to handle cells with inline strings
+  in the xlsx import filter.  However, orcus's own document store backend does
+  not yet handle cells with non-indexed strings, so when importing xlsx
+  documents containing cells with inline strings, those cells will be ignored
+  for now.
+
+* added to the orcus::format_t enum type json and xml as its members.  With
+  that change, you can now instantiate import filter adapters for these two
+  new format types to import generic JSON and XML documents.  These two
+  adapter filters will auto-detect tabular structures and map them to sheets
+  if they exist.
+
+* orcus::detect() can now detect generic JSON and XML documents.
+
+* fixed a bug where orcus-xml generated incorrect map file in map-gen mode
+  when the source document contained multiple tabular structures.
+
+orcus 0.20.1
+
+* fixed an assertion failure when importing a document in Excel 2003 XML
+  format containing an autofilter with no filtering applied to it.
+
+* added a set of new interfaces to support importing pivot table definitions
+  from xlsx documents.
+
+* added support for dumping the internal state of pivot caches and pivot table
+  definitions as part of the debug state output.
+
+* added clarification on the return value of import_sheet::get_sheet_size()
+  interface method in the documentation.
+
+* C++ API reference has been restructured to show each symbol in a separate
+  page, and have their header information also included.
+
+* added test cases for testing expected string labels for enum types.
+
+* fixed orcus-json's map mode which would previously fail when built with
+  CMake.
+
+orcus 0.20.0
+
+* import filters
+
+  * added support for more format types in formatted strings in xlsx, xls-xml
+    and gnumeric filters.  The following format types are now supported:
+
+    * superscript
+
+    * subscript
+
+    * strikethrough
+
+    * underline
+
+  * strikethrough format applied to cells are now supported in xlsx and
+    xls-xml.
+
+  * importing of underline format applied to cells in gnumeric have been
+    revised to fix issues.
+
+  * interface for autofilter import has been revamped to properly import
+    autofilter properties from xlsx, xls-xml, gnumeric and ods.
+
+  * import_sheet_properties::set_row_height() now takes a row span as opposed
+    to a single row position.
+
+  * fixed a bug in the ods filter to properly separate styles in different
+    style families.  Previously, all styles were stored without style-family
+    segregation which resulted in collision of styles with the same name.
+
+* document model
+
+  * format run storage in orcus::spreadsheet::format_run now correctly
+    differentiates a format not being applied from a negative format being
+    applied.  For instance, the previous storage could not differentiate the
+    state of a bold format not being specified from a non-bold state being
+    intentionally applied.
+
+* json
+
+  * added support for custom indent when formatting JSON document.
+    orcus::json::document_tree::dump() now takes an additional indent
+    parameter to control the amount of indentation in the output.
+
+  * orcus::json::subtree class has been added to allow referencing of subtree
+    in an existing document_tree instance.
+
+  * parser has been revised to properly handle escaped unicode characters.
+    The parser now propertly converts escaped unicode characters to proper
+    UTF-8 characters.
+
+* tools
+
+  * orcus-json now has a new subtree mode to allow extraction of subtree from
+    an existing JSON document.  The root of a subtree is to be specified as a
+    subset of JSONPath expression.  Both bracket notation and dot notation are
+    supported.  Wildcard selector is also supported.
+
+  * orcus-json now has a lint mode to allow reformatting of a JSON document
+    with custom indent length via --indent option.
+
+orcus 0.19.2
+
+* general
+
+  * fixed a build issue with gcc 14 due to a missing include for std::find_if
+    and std::for_each.
+
+  * fixed a segmentation fault with the orcus-test-xml-mapped test which
+    manifested on hppa hardware, as originally reported on
+    https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1054376.
+
+* xls-xml
+
+  * fixed a crash when loading a document that includes a style record
+    referencing an unnamed style record as its parent.  In Excel-generated
+    documents, styles only reference named styles as their parents.  But in
+    3rd-party generated documents, styles referencing unnamed styles as their
+    parents can occur.
+
+* gnumeric
+
+  * fixed a crash when the document model returned a null pointer when a
+    reference resolver interface was requested.
+
+orcus 0.19.1
+
+* general
+
+  * implemented orcus::create_filter() which instantiates a filter object of
+    specified type.  The returned object is of type
+    orcus::iface::import_filter.
+
+  * moved test cases for format detection to the respective filter test files.
+
+* gnumeric
+
+  * fixed a bug where the import filter did not set the formula grammer prior
+    to importing.
+
+orcus 0.19.0
+
+* general
+
+  * added support for allowing use of std::filesystem,
+    std::experimental::filesystem or boost::filesystem per build
+    configuration.
+
+* xlsx
+
+  * refactored styles import to use style indices returned by the document
+    model implementer rather than using the indices stored in the file.  This
+    allows the implementer to aggregate some style records and re-use the same
+    index for records that are stored as different records in the original
+    file.
+
+* xls-xml
+
+  * fixed a bug where column styles were not applied to the correct columns
+    when the starting column index was not 0.
+
+* gnumeric
+
+  * overhauled the Gnumeric import filter to fix many bugs and support many
+    missing features relative to the other filters included in orcus.  Most
+    notable mentions are:
+
+    * cell styles
+
+    * rich-text strings
+
+    * named ranges
+
+    * row heights and column widths
+
+    * merged cells
+
+* parquet
+
+  * added partial support for Apache Parquet import filter.  This is still
+    heavily experimental.
+
+orcus 0.18.1
+
+* sax parser
+
+  * added support for optionally skipping multiple BOM's in the beginning of
+    XML stream.  This affects all XML-based file format filters such as
+    xls-xml (aka Excel 2003 XML).
+
+* xml-map
+
+  * fixed a bug where XML documents consisting of simple single-column records
+    were not properly converted to sheet data.
+
+* xls-xml
+
+  * fixed a bug where the filter would always pass border color even when it
+    was not set.
+
+* buildsystem
+
+  * added new configure switches --without-benchmark and --without-doc-example
+    to optinally skip building of these two directories.
+
+orcus 0.18.0
+
+* general
+
+  * fixed the flat output mode to properly calculate the lengths of UTF-8
+    encoded strings.
+
+  * replaced all uses of std::strtol() to parse_integer() to properly parse
+    strings that are not necessarily null-terminated.
+
+  * added a new output format type 'debug-state' which dumps the internal
+    state of the populated document model in detail.  This can be useful
+    during debugging.
+
+  * separated the import_shared_string interface implementation from the
+    backend shared strings store per separation of responsibility.
+
+  * merged the foo_t and foo_active_t struct pair, such as font_t and
+    font_active_t, in the styles store into a single type using std::optional.
+
+  * revised the documentation and public API and cleaned things up where
+    necessary.
+
+* ods
+
+  * reimplemented the number format styles import to correctly keep track of
+    element stacks and correctly perform structure checks to detect malformed
+    documents.
+
+  * added new interface to import named styles applied to columns.
+
+  * added new interface to import attributes for asian and complex scripts for
+    the folloiwng font attributes:
+
+    * font name
+
+    * font size
+
+    * font style
+
+    * font weight
+
+  * re-designed the styles import interface to make it multi-level.
+
+  * re-worked the import of the style:text-underline-width attribute to make
+    its handling more in line with the specifications.
+
+* xls-xml
+
+  * added support for importing wrap-text and shrink-to-fit cell format
+    attributes.
+
+  * added support for importing cell-hidden and locked attributes.
+
+  * added support for importing direct and named cell formats applied to
+    columns and rows.
+
+* xlsx
+
+  * added support for importing wrap-text and shrink-to-fit cell format
+    attributes.
+
+  * added support for importing direct and named cell formats applied to
+    columns and rows.
+
+* xml-map
+
+  * added a new interface to pass the encoding information to the document
+    model so that it can correctly decode non-UTF-8-encoded string values.
+
+orcus 0.17.2
+
+* ods
+
+  * fixed a bug where the state of style:cell-protect="none" was not
+    explicitly pushed, thereby having had the same effect as not having this
+    attribute.  After the fix, style:cell-protect="none" will explicitly push
+    the hidden state to false, locked state to false, and the formula-hidden
+    state to false.
+
+orcus 0.17.1
+
+* general
+
+  * addressed a number of coverity issues.
+
+  * removed a variety of compiler warnings.
+
+* ods
+
+  * re-generated sax parser tokens from ODF v1.3.
+
+  * revised the style import code to only push style attributes that are
+    actually specified in the XML.
+
+* xls-xml
+
+  * revised the XML structure validation strategy to ignore any mis-placed
+    elements and their sub structures rather than aborting the import.
+
+orcus 0.17.0
+
+* general
+
+  * set the baseline C++ version to 17.
+
+  * cleaned up the public API to replace pstring with std::string_view, union
+    with std::variant, and boost::optional with std::optional.  With this
+    change, the public API no longer has dependency on boost.
+
+* spreadsheet document
+
+  * switched to using ixion::model_iterator for horizontal iteration of cells
+    instead of using mdds::mtv::collection.
+
+  * fixed a bug where exporting a spreadsheet document containing adjacent
+    merged cells regions to html incorrectly exported the merged cell areas.
+
+* xlsx
+
+  * cached cell values are now correctly loaded from the file.
+
+* sax parser
+
+  * utf-8 names are now allowed as element and attribute names.
+
+* css parser
+
+  * unquoted utf-8 property values are now allowed.
+
+* orcus-json
+
+  * fixed segmentation fault when using --mode structure with the Windows
+    build.
+
+  * added yaml output option.
+
+* xml-map
+
+  * fixed a bug where mapping of an XML document with namespace aliases
+    sometimes corrupts the alias values.
+
+* python
+
+  * added orcus.FormulaTokenOp enum type which describes type formula token
+    operator types in a more finer grained manner.
+
+* documentation
+
+  * added notes to how to use orcus-xml and orcus-json to map XML and JSON
+    documents to spreadsheet documents.
+
+orcus 0.16.1
+
+* fixed a build issue on 32-bit linux platforms, which was indirectly caused
+  by ixion.
+
+* fixed json parsing bug caused by an uninitialized variable, which manifested
+  itself on debian 32-bit platform.
+
+* removed compiler warnings on unused variables from the base parser handlers.
+
+orcus 0.16.0
+
+* general
+
+  * full formula recalculations are now optional when loading documents.  It
+    makes more effective use of cached formula results.
+
+  * added the option of failing on the first faulty cell, or skipping them.
+
+  * fixed a bug that caused the threaded_sax_token_parser to deadlock.
+
+  * added base parser handler classes in the public headers so that they can
+    be sub-classed to overwrite necessary handler methods.
+
+* json-parser
+
+  * parsing of numeric values are now more strict for better conformance to
+    the specs.
+
+* ods
+
+  * added support for loading named expressions from ods documents.
+
+  * fixed an infinite loop when loading one of the attached ods documents from
+    https://bugs.documentfoundation.org/show_bug.cgi?id=82414
+
+* xlsx
+
+  * fixed a segfault when loading the xlsx document from
+    https://bugs.documentfoundation.org/show_bug.cgi?id=83711.
+
+* xls-xml
+
+  * fixed a bug that prevented formulas from referencing cells located in
+    later sheets.
+
+* xml-map
+
+  * adjusted the xml path expressions to be more like XPath.  Previously, an
+    attribute was expressed as '@' in the old expression, but XPath uses '/@'.
+    The new expression uses '/@' for an attribute.
+
+  * added the ability to identify and import ranges from XML documents without
+    map file.
+
+  * added the ability to generate map file from XML documents for user
+    customization.
+
+  * added support to specify default namespace in the map file.
+
+* python
+
+  * added orcus.Cell class to represent individual cell values and attributes.
+
+  * fixed several memory leaks in the python binding layer.
+
+  * modified orcus.csv.read() function to take string input, instead of bytes.
+
+  * added __version__ attribute to the orcus module.
+
+  * cleaned up orcus.detect_format function to only take the stream parameter.
+
+  * added named_expressions properties to Document and Sheet class objects.
+
+  * added Python API to bulk-process a number of spreadsheet documents
+    (orcus.tools.file_processor).
+
+  * added Python API to download attachments from bugzilla services via REST
+    API (orcus.tools.bugzilla).
+
+orcus 0.15.4
+
+* fixed a build error with gcc 10 with LTO.  For more details, visit
+  (https://bugs.gentoo.org/715154).
+
+* removed potentially non-free specification and schema files from the
+  package.
+
+orcus 0.15.3
+
+* xml-map
+
+  * fixed another bug related to filling of cells down the column in a linked
+    range with nested repeat elements.  The bug would occur when the field in
+    a linked range is more than one level deeper than the nearest row group
+    element.
+
+* xls-xml
+
+  * fixed a bug where TopCell and LeftCell attributes of the Table element
+    were not properly honored.
+
+orcus 0.15.2
+
+* xml-map
+
+  * fixed a bug that prevented filling of cells down the column in a linked
+    range with nested repeat elements.  The bug would occur when the field in
+    a linked range is associated with an element content rather than an
+    attribute.
+
+* xls-xml
+
+  * added code to properly pick up and pass the number format codes, including
+    named number format values such as 'General Date', 'Long Time, 'Currency'
+    etc.
+
+* fixed a build issue on older macOS environment, related to passing an rvalue
+  to a tuple expecting a const reference.  The root cause was a bug in libc++
+  of LLVM < 7.
+
+* fixed a build issue with gcc5.
+
+orcus 0.15.1
+
+* switched xml_map_tree to using boost::object_pool to manage the life
+  cycles of the objects within xml_map_tree, to avoid memory
+  fragmentation.
+
+* fixed incorrect handling of newly created elements in xml_map_tree.
+
+* fixed segfault caused by double deletion of allocated memory for
+  xml_map_tree::element, which seemed to happen only on 32-bit gcc builds.
+
+* fixed weird test failures related to equality check of two double-precision
+  values, caused probably by aggressive compiler optimization which only seems
+  to get triggered in 32-bit gcc builds.
+
+orcus 0.15.0
+
+* spreadsheet interface
+
+  * import_sheet::fill_down_cells() has been added as a required method, to
+    allow the import filter code to duplicate cell value downward in one step.
+
+* json parser
+
+  * added test cases from JSONTestSuite.
+
+  * fixed a bug on parsing an empty array containing one or more blank
+    characters between the brackets.
+
+* sax parser
+
+  * fixed a bug on parsing an attribute value with encoded character
+    immediately followed by a ';', such as '&amp;;'.
+
+  * fixed a bug on parsing an assignment character '=' that either preceded or
+    followed by whitespaces in attribute definition.
+
+  * optionally use SSE4.2 intrinsics to speed up element name parsing.
+
+* orcus-xml
+
+  * revised its cli interface to make use of boost's program_options.
+
+  * orcus-xml-dump's functionality has been combined into orcus-xml.
+
+  * map mode now supports nested repeat elements to be mapped as range fields.
+
+* orcus-json
+
+  * map mode has been added to allow mapping of JSON documents to spreadsheet
+    document model.  This mode either takes explicit mapping rule via map
+    file, or performs automatic mapping by auto-identifying mappable ranges by
+    analyzing the structure of the JSON document.
+
+  * structure mode has been added to display the logical structures of JSON
+    documents.
+
+  * significantly improved performance of json document tree by utilizing
+    object pool to manage the life cycles of json value instances.
+
+* xls-xml
+
+  * added support for importing named color values in the ss:Color attributes.
+
+  * added support for handling UTF-16 streams that contains byte order marks.
+
+* spreadsheet document
+
+  * significantly improved performance of flat format output generation.
+
+* internal
+
+  * string_pool now uses boost's object_pool to manage the instances of stored
+    strings.
+
+  * file_content class has been added to memory-map file contents instead of
+    loading them in-memory.
+
+  * memory_content class has been added to map in-memory buffer with the
+    optional ability to perform unicode conversion.
+
+  * dom_tree has been renamed to dom::document_tree, and its interface has
+    been cleaned up to hide its implementation details.
+
+orcus 0.14.1
+
+* addressed a number of coverity issues.
+
+* improved precision of points-to-twips measurement conversions by
+  reducing the number of numeric operations to be performed.  This
+  especially helps on i386 platforms.
+
+orcus 0.14.0
+
+* spreadsheet interface
+
+  * import_data_table::set_range() now receives a parameter of type
+    range_t.
+
+  * import_sheet::set_array_formula() interface methods have been
+    removed and replaced with import_sheet::get_array_formula() that
+    returns an interface of type import_array_formula.
+
+  * import_formula interface class has been added to replace the
+    formula related methods of import_sheet.  As a result,
+    set_formula(), set_shared_formula(), and set_formula_result()
+    methods have been removed from the import_sheet interface class.
+
+  * import_auto_filter::set_range() now receives a parameter of type
+    range_t, rather than a string value representing a range.
+
+  * import_sheet::set_fill_pattern_type() interface method now takes
+    an enum value of type fill_pattern_t, rather than a string value.
+
+* xls-xml
+
+  * pick up the character set from the XML declaration, and pass it
+    to the client app via import_global_settings interface.
+
+  * support importing of array formulas.
+
+* xlsx
+
+  * support importing of array formulas.
+
+  * fixed a bug where sheet indices being passed to the append_sheet()
+    interface method were incorrect.
+
+* shared formula handling code has been re-worked.
+
+* spreadsheet::sheet class has been de-coupled from the import and
+  export interfaces.
+
+* previously known as import_styles class is now split into styles
+  class and import_styles factory wrapper class.
+
+* sax_parser now gracefully ignores leading whitespace(s) if any,
+  rather than aborting the parsing for it's not a valid XML stream
+  to have leading whitespace(s).  In the future we should make this
+  behavior configurable.
+
+* python
+
+  * add orcus.xlsx.read() function that takes a file object to load
+    an xlsx file as a replacement for orcus.xlsx.read_file().
+
+  * add orcus.ods.read(), orcus.xls_xml.read(), orcus.csv.read(),
+    and orcus.gnumeric.read() functions.
+
+  * add orcus.Sheet.write() method which exports sheet content to
+    specified format.  For now only the csv format type is
+    supported.
+
+* xml_map_tree no longer requires the source stream persisted in
+  memory between the read and write.
+
+* the sax parser now stores the offset positions of each element
+  rather than their memory positions, in order to make the position
+  values usable between duplicated stream instances.
+
+* xml_structure_tree to support selection of an element by element
+  path.
+
+* document
+
+  * correctly set the argument separator depending on the formula
+    grammar type.  This change fixes loading of ods documents with
+    formula cells.
+
+* fixed a build issue with boost 1.67.
+
+orcus 0.13.4
+
+* xls-xml
+
+  * fix incorrect handling of formula cells without result caches.
+
+* fix incorrect parsing of invalid XML documents with multiple
+  self-closing root elements.
+
+orcus 0.13.3
+
+* fix the handling of alpha values passed to set_fill_fg_color() and
+  set_fill_bg_color().  A value of 255 means fully opaque whereas a
+  value of 0 means fully transparent.
+
+* fix the solid fill color import, to use the foreground color
+  instead of the background color.
+
+* xlsx
+
+  * import colors to disgonal borders.
+
+  * remove carriage returns from multi-line cell strings.
+
+* xls-xml
+
+  * import border colors.
+
+  * import hidden row and column flags.
+
+orcus 0.13.2
+
+* xls-xml
+
+  * import column width and row height properties.
+
+  * import solid fill colors in cells.
+
+  * import text alignment properties.
+
+  * import cell borders.
+
+* xlsx
+
+  * import justified and distributed text alignment properties.
+
+  * fix exception being thrown when the diagonal element is
+    encountered.
+
+  * import diagonal cell borders.
+
+orcus 0.13.1
+
+* use a more efficient way to set format ranges in spreadsheet
+  model.
+
+* support single quoted strings in the css parser.
+
+orcus 0.13.0
+
+* fix incorrect parsing of XML 1.0 documents that don't include
+  header declarations.
+
+* fix incorrect parsing of XML elements and attributes whose names
+  start with an underscore.
+
+* orcus-csv: add an option to split content into multiple sheets in
+  case it doesn't fit in one sheet.
+
+* add csv dump mode for all spreadsheet document based filter
+  commands.
+
+* orcus-ods: suppress debug outputs unless the debug flag is set.
+
+* orcus-xlsx: correctly import boolean cell values.
+
+* add experimental cmake-based build support, primarily for Windows.
+
+* add initial support for importing select sheet view settings in
+  xlsx and xls-xml.
+
+* add API for directly constructing json document trees.
+
+* support import of cell formats for xls-xml.
+
+* support single-quoted attribute values in the sax xml parser.
+
+* orcus-xml: fix incorrect mapping of XML range data to sheet range
+  when the first column contains one or more empty elements.
+
+* support import of named expressions for xlsx and xls-xml.
+
+* support import of formula cells for xls-xml.
+
+* implement pivot cache import for xlsx.
+
+* fix a number of crashes in the csv parser.
+
+* fix a number of crashes in the json parser.
+
+* fix a number of crashes in the yaml parser.
+
+* integrate orcus into gitlab's continuous integration.
+
+orcus 0.12.1
+
+* fix build when --disable-spreadsheet-model is specified and the
+  ixion headers are not present.
+
+* fix loading of file streams on Windows.
+
+* get the debug flag to work again.
+
+orcus 0.12.0
+
+* handle escaped unicode in the xml parser
+
+* improve odf styles import
+
+* implement threaded xml parser
+
+* implement threaded json parser
+
+orcus 0.11.2
+
+* make it buildable with mdds-1.2.
+
+orcus 0.11.1
+
+* fixed various build issues with MSVC and clang on OSX.
+
+orcus 0.11.0
+
+* remove boost dependency from the public headers.
+
+* implement JSON parser and document storage model.
+
+* implement YAML parser and document storage model.
+
+* add orcus-json.
+
+* add orcus-yaml.
+
+* improve parse error output from the XML parser.
+
+* use enum class in import_style::set_border_style().
+
+* support non-local file import.
+
+orcus 0.1.0
+
+* initial release.
