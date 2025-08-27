@@ -1,9 +1,10 @@
-liborcus (0.20.2-3) UNRELEASED; urgency=medium
+liborcus (0.20.2-Policorp.4) unstable; urgency=medium
 
   * add upstream commit 3649a7c0a38603c760076f74db698b85aeb0f59d to fix
     Libreoffice masters unittests (which now rely on this being there)
+  * New version in Policorp
 
- -- Rene Engelhard <rene@debian.org>  Wed, 27 Aug 2025 06:23:07 +0200
+ -- Edson Juliano Drosdeck <edson@policorp.com.br>  Wed, 27 Aug 2025 08:59:11 -0300
 
 liborcus (0.20.2-2) unstable; urgency=medium
 
